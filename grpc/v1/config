@@ -1,0 +1,45 @@
+ngx_addon_name=mikiri_waf_grpc_module
+
+# Only the gRPC-specific sources are built here.  The shared WAF sources
+# (waf_rules.c, waf_request_parser.c, waf_exchange.c, waf_shared_contexts.c,
+# waf_connections.c, waf_captcha.c, waf_json.c, waf_memory.c) are built by the
+# mikiri_waf_http_module addon, which is required by this module and must be
+# added to the same nginx build.
+
+WAF_SRCS="                                      \
+           $ngx_addon_dir/mikiri_waf_grpc_module.c  \
+           $ngx_addon_dir/waf_parse.c            \
+           $ngx_addon_dir/waf_process.c            \
+           "
+WAF_DEPS="                                      \
+           $ngx_addon_dir/mikiri_waf_grpc_module.h  \
+           $ngx_addon_dir/mikiri_waf_http_module.h  \
+           $ngx_addon_dir/waf_descriptions.h        \
+           $ngx_addon_dir/waf_parse.h            \
+           $ngx_addon_dir/waf_process.h            \
+           $ngx_addon_dir/waf_rules.h            \
+           $ngx_addon_dir/waf_request_parser.h       \
+           $ngx_addon_dir/waf_exchange.h               \
+           $ngx_addon_dir/waf_shared_contexts.h     \
+           $ngx_addon_dir/waf_connections.h     \
+           $ngx_addon_dir/waf_captcha.h     \
+           $ngx_addon_dir/waf_captcha_compat.h     \
+           $ngx_addon_dir/waf_json.h     \
+           $ngx_addon_dir/waf_memory.h     \
+           "
+
+WAF_CORE_LIBS="-lcurl -lrabbitmq -ljson-c"
+
+if test -n "$ngx_module_link"; then
+    ngx_module_type=HTTP
+    ngx_module_name=mikiri_waf_grpc_module
+    ngx_module_srcs=$WAF_SRCS
+    ngx_module_deps=$WAF_DEPS
+    ngx_module_libs=$WAF_CORE_LIBS
+    . auto/module
+else
+    HTTP_MODULES="$HTTP_MODULES $ngx_addon_name"
+    NGX_ADDON_SRCS="$NGX_ADDON_SRCS $WAF_SRCS"
+    NGX_ADDON_DEPS="$NGX_ADDON_DEPS $WAF_DEPS"
+    CORE_LIBS="$CORE_LIBS $WAF_CORE_LIBS"
+fi
