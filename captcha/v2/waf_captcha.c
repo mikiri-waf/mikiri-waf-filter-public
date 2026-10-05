@@ -1822,6 +1822,15 @@ static ngx_int_t waf_captcha_unban(ngx_http_waf_main_conf_t *wmc, ngx_http_reque
 
   unban_out.next = NULL;
 
+  /*
+   * The redirect is produced by the filter. Mark it internal and drop the
+   * block flag before the headers go out. The response filter otherwise
+   * still sees the block that sent the client to the captcha and replaces
+   * this page with the configured block page.
+   */
+  rctx->waf_internal = 1;
+  rctx->block = 0;
+
   r->headers_out.status = NGX_HTTP_OK;
 
   unban_len = (size_t)(sizeof(redirect_html) + uri.len);
