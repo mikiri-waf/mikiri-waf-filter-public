@@ -2333,9 +2333,12 @@ static void ngx_http_upstream_send_response(ngx_http_request_t *r, ngx_http_upst
         p->buf_to_file->temporary = 1;
     }
 
+    /* nginx 1.31.8 removed the IOCP event module and single_buf. */
+#ifdef NGX_USE_IOCP_EVENT
     if (ngx_event_flags & NGX_USE_IOCP_EVENT) {
         p->single_buf = 1;
     }
+#endif
 
     p->free_bufs = 1;
 
