@@ -1,5 +1,5 @@
 /*
- * Mikiri WAF CAPTCHA - nginx compatibility layer
+ * Mikiri CAPTCHA - nginx compatibility layer
  * Copyright (c) Mikiri Security, LLC
  *
  * This is the only file of the addon that differs between the version
