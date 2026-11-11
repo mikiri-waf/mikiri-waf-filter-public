@@ -11,6 +11,7 @@
 #include "waf_captcha.h"
 #include "waf_captcha_compat.h"
 #include "waf_request_parser.h"
+#include "waf_antibot_cookie.h"
 #include "waf_exchange.h"
 #include "waf_descriptions.h"
 
@@ -1767,8 +1768,10 @@ static ngx_int_t waf_captcha_unban(ngx_http_waf_main_conf_t *wmc, ngx_http_reque
 
   waf_delete_banned_ip(&ip, &shm_var, wmc);
 
-  if (wmc->antibot_captcha_url != NULL) {
-    set_ip_antibot_captcha(wmc, ip);
+  /* A solved CAPTCHA still unbans the address when the pass cookie cannot be raised. */
+  if (waf_antibot_cookie_upgrade(wmc, rctx, r) != NGX_OK) {
+    waf_log_error(WAF_LOG_ERR, WAF_CAT_ANTIBOT, wmc, NULL, NGX_LOG_ERR, r->connection->log, 0,
+                  STR_AB_COOKIE_RAISE, &rctx->req_id_s);
   }
 
   waf_log_error(WAF_LOG_INFO, WAF_CAT_MISC, wmc, NULL, NGX_LOG_INFO, r->connection->log, 0,
